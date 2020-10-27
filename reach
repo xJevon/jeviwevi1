@@ -1,0 +1,85 @@
+local kick = assert(getconnections(game.Players.LocalPlayer.CharacterAdded)[1].Function)
+
+kick = debug.getupvalue(kick, 8)
+
+hookfunction(kick, function() end)
+local TOGGLE_BIND = "e"
+local TRANSPARENCY_BIND = "r" 
+local SPHYRE_SIZE = 5		  
+
+local Players = game:GetService("Players")
+local plr = Players.LocalPlayer
+local mouse = plr:GetMouse()
+
+local isActive = false
+local DEFAULT_HANDLE_SIZE = Vector3.new(1, 0.8, 4)
+local SPHYRE_NAME = "Daddy grim"
+local SPHYRE_COLOR = Color3.fromRGB(0.067, 0.067, 0.067)
+
+local function getHandle(toolName)
+	return plr.Backpack:FindFirstChild(toolName):FindFirstChild("Handle") or
+		   plr.Character:FindFirstChild(toolName):FindFirstChild("Handle")
+end
+
+local function getHandles()
+	local args = {}
+	local handle = nil
+	
+	local function get(tab)
+		for _, v in pairs(tab) do
+			if v:IsA("Tool") then
+				handle = v:FindFirstChild("Handle")
+				if handle ~= nil then
+					args[#args+1] = handle
+				end
+			end
+		end
+	end
+	
+	get(plr.Backpack:GetChildren())
+	get(plr.Character:GetChildren())
+	
+	return args
+end
+
+local function extendo()
+	for _, v in pairs(getHandles()) do
+		
+		if not isActive then
+			local Ring = Instance.new("SelectionSphere")
+			Ring.Transparency = 1
+			Ring.SurfaceTransparency = 0.3
+			Ring.Adornee = v
+			Ring.Name = SPHYRE_NAME
+			Ring.Parent = v
+			v.Size = Vector3.new(SPHYRE_SIZE, SPHYRE_SIZE, SPHYRE_SIZE)
+			v.Massless = true
+			v.CanCollide = false
+		else
+			for _, k in pairs(v:GetChildren()) do
+				if k.Name == SPHYRE_NAME then
+					k:Destroy()
+				end
+				
+			end
+			v.Size = DEFAULT_HANDLE_SIZE
+		end
+	end
+end
+
+local function hide()
+	for _, v in pairs(getHandles()) do
+		if v:FindFirstChild(SPHYRE_NAME) then
+			v[SPHYRE_NAME].Visible = not v[SPHYRE_NAME].Visible
+		end
+	end
+end
+
+mouse.KeyDown:Connect(function(O_o)
+	if O_o == TOGGLE_BIND then
+		extendo()
+		isActive = not isActive
+	elseif O_o == TRANSPARENCY_BIND then 
+		hide()
+	end
+end)
